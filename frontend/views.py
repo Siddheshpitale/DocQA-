@@ -58,7 +58,7 @@ def upload_document(request):
 
     try:
         if client_id in _active_pipelines:
-        del _active_pipelines[client_id]  # free old pipeline memory
+            del _active_pipelines[client_id]  # free old pipeline memory
 
         pipeline = RAGPipeline(docs_path=upload_dir)
         _active_pipelines[client_id] = pipeline
