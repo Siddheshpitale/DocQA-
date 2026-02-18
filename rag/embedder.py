@@ -1,18 +1,17 @@
 from sentence_transformers import SentenceTransformer
 
+# ✅ Load ONCE at module level
+model = SentenceTransformer(
+    "all-MiniLM-L6-v2",
+    device="cpu"
+)
 
 class Embedder:
-    def __init__(self):
-        self.model = SentenceTransformer(
-            "all-MiniLM-L6-v2",
-            device="cpu"   # ✅ Force CPU
-        )
-
     def embed(self, texts):
-        return self.model.encode(
+        return model.encode(
             texts,
-            batch_size=32,                # ✅ Prevent RAM spikes
+            batch_size=32,
             show_progress_bar=False,
-            convert_to_numpy=True,         # ✅ Needed for FAISS
-            normalize_embeddings=True      # ✅ Better similarity search
+            convert_to_numpy=True,
+            normalize_embeddings=True
         )
