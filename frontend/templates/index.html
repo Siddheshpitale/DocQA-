@@ -461,26 +461,51 @@
     queryInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') askQuestion(); });
 
     function askQuestion() {
-        const query = queryInput.value.trim();
-        if(!query || !documentLoaded) return;
-        
-        askBtn.disabled = true; queryInput.disabled = true;
-        status.classList.add('visible');
-        addMessage('user', query);
+    const query = queryInput.value.trim();
+    if (!query || !documentLoaded) return;
 
-        const formData = new FormData(); formData.append('query', query);
-        fetch('/ask/', { method: 'POST', body: formData })
-        .then(r => r.json())
-        .then(data => {
-            addMessage('bot', data.answer, data.sources, data.answer.includes('not found'));
-        })
-        .catch(e => addMessage('bot', 'Error: ' + e.message, [], true))
-        .finally(() => {
-            askBtn.disabled = false; queryInput.disabled = false;
-            status.classList.remove('visible');
-            queryInput.value = ''; queryInput.focus();
-        });
-    }
+    askBtn.disabled = true;
+    queryInput.disabled = true;
+    status.classList.add('visible');
+
+    addMessage('user', query);
+
+    const formData = new FormData();
+    formData.append('query', query);
+
+    fetch('/ask/', { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(data => {
+
+        // ✅ Handle backend errors safely
+        if (data.error) {
+            addMessage('bot', "Error: " + data.error, [], true);
+            return;
+        }
+
+        // ✅ Handle missing answer
+        if (!data.answer) {
+            addMessage('bot', "Invalid response from server", [], true);
+            return;
+        }
+
+        // ✅ Safe includes()
+        const isNotFound = data.answer && data.answer.toLowerCase().includes('not found');
+
+        addMessage('bot', data.answer, data.sources || [], isNotFound);
+    })
+    .catch(e => {
+        addMessage('bot', 'Error: ' + e.message, [], true);
+    })
+    .finally(() => {
+        askBtn.disabled = false;
+        queryInput.disabled = false;
+        status.classList.remove('visible');
+        queryInput.value = '';
+        queryInput.focus();
+    });
+}
+
 
     function addMessage(type, text, sources, error) {
         const msg = document.createElement('div');
@@ -506,4 +531,5 @@
 </script>
 
 </body>
+
 </html>
