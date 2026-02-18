@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: docqa
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn config.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DEBUG
+        value: False
+```
+
+---
+
+### **File 5: `.gitignore`**
+
+**Location:** Root of repo  
+**Action:** Make sure it has:
+```
+.env
+*.env
+__pycache__/
+*.pyc
+db.sqlite3
+/staticfiles/
+/media/
+/data/
+*.pkl
+*.npy
+.vscode/
+.DS_Store
