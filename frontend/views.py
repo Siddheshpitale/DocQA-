@@ -33,6 +33,10 @@ def upload_document(request):
     file = request.FILES.get("file")
     if not file:
         return JsonResponse({"error": "No file uploaded"}, status=400)
+        
+    MAX_SIZE_MB = 10
+    if file.size > MAX_SIZE_MB * 1024 * 1024:
+        return JsonResponse({"error": "File too large (max 10MB)"}, status=400)    
 
     if not file.name.lower().endswith(".pdf"):
         return JsonResponse({"error": "Only PDF files are supported"}, status=400)
@@ -53,6 +57,9 @@ def upload_document(request):
             dest.write(chunk)
 
     try:
+        if client_id in _active_pipelines:
+        del _active_pipelines[client_id]  # free old pipeline memory
+
         pipeline = RAGPipeline(docs_path=upload_dir)
         _active_pipelines[client_id] = pipeline
     except Exception as e:
