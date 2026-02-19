@@ -1,8 +1,10 @@
-def chunk_text(documents, chunk_size=300, overlap=40):
+def chunk_text(documents, chunk_size=400, overlap=50):
     chunks = []
 
     for doc in documents:
         text = doc["text"]
+        metadata = doc.get("metadata", {})  # ✅ Preserve metadata
+
         start = 0
         text_length = len(text)
 
@@ -12,10 +14,9 @@ def chunk_text(documents, chunk_size=300, overlap=40):
 
             chunks.append({
                 "text": chunk,
-                "source": doc.get("source", "unknown")
+                "metadata": metadata   # ✅ CRITICAL FIX
             })
 
-            start += chunk_size - overlap  # slide window
+            start += chunk_size - overlap
 
-    print(f"✅ Created {len(chunks)} chunks")
     return chunks
